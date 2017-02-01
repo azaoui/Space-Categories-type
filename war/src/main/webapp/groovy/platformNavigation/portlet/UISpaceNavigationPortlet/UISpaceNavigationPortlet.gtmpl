@@ -1,0 +1,176 @@
+<style>
+
+    .affix-content .container .page-header{
+    margin-top: 0;
+  }
+
+  .affix-sidebar{
+    padding-right:0; 
+    font-size:small;
+    padding-left: 0;
+  }  
+  .affix-row, .affix-container, .affix-content{
+    height: 100%;
+    overflow: scroll;
+    margin-left: 0;
+    margin-right: 0;    
+  } 
+  .affix-content{
+    background-color:white; 
+  } 
+  .sidebar-nav .navbar .navbar-collapse {
+    padding: 0;
+    max-height: none;
+  }
+  .sidebar-nav .navbar{
+    border-radius:0; 
+    margin-bottom:0; 
+    border:0;
+  }
+  .sidebar-nav .navbar ul {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li {
+    float: none;
+    display: block;
+  }
+  .sidebar-nav .navbar li a {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }  
+}
+
+@media (min-width: 769px){
+  .affix-content .container {
+    width: 600px;
+  }
+    .affix-content .container .page-header{
+    margin-top: 0;
+  }  
+}
+
+@media (min-width: 992px){
+  .affix-content .container {
+  width: 900px;
+  }
+    .affix-content .container .page-header{
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1220px){
+  .affix-row{
+    overflow: hidden;
+  }
+
+  .affix-content{
+    overflow: auto;
+  }
+
+  .affix-content .container {
+    width: 1000px;
+  }
+
+  .affix-content .container .page-header{
+    margin-top: 0;
+  }
+  .affix-content{
+    padding-right: 30px;
+    padding-left: 30px;
+  }  
+  .affix-title{
+    border-bottom: 1px solid #ecf0f1; 
+    padding-bottom:10px;
+  }
+  .navbar-nav {
+    margin: 0;
+  }
+  .navbar-collapse{
+    padding: 0;
+  }
+  .sidebar-nav .navbar li a:hover {
+    background-color: #428bca;
+    color: white;
+  }
+  .sidebar-nav .navbar li a > .caret {
+    margin-top: 8px;
+  }  
+}
+
+</style>
+
+<%
+import org.exoplatform.addons.service.config.SpaceCategoriesServiceConfig;
+import org.exoplatform.container.PortalContainer;
+import org.exoplatform.social.core.space.model.Space;
+import java.util.ArrayList;
+import java.util.List;
+import org.exoplatform.commons.utils.ListAccess;
+import  org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.services.security.ConversationState;
+
+SpaceCategoriesServiceConfig spaceCategories = (SpaceCategoriesServiceConfig) PortalContainer.getInstance().getComponentInstanceOfType(SpaceCategoriesServiceConfig.class);
+ SpaceService spaceService = (SpaceService) PortalContainer.getInstance().getComponentInstanceOfType(SpaceService.class);
+  ConversationState conversationState = (ConversationState) PortalContainer.getInstance().getComponentInstanceOfType(ConversationState.class);
+ ListAccess<Space> spaceListAccess;
+ spaceListAccess = spaceService.getAccessibleSpacesWithListAccess(ConversationState.getCurrent().getIdentity().getUserId());
+ 
+    List<Space> spaces= Arrays.asList(spaceListAccess.load(0, spaceListAccess.getSize()));
+
+
+Collections.sort(spaces, new Comparator<Space>() {
+    @Override
+    public int compare(Space o1, Space o2) {
+        return o1.getType().compareTo(o2.getType());
+    }
+});
+
+
+
+%>
+
+<div class="uiCompanyNavigationPortlet">
+   <div class="row affix-row">
+    <div class="col-sm-3 col-md-2 affix-sidebar">
+    <div class="sidebar-nav">
+  <div class="navbar navbar-default" role="navigation">
+    <div class="navbar-collapse sidebar-navbar-collapse in collapse">
+      <ul class="nav navbar-nav" id="sidenav01">
+        <li class="active"><a href="/portal/intranet/spaces">Spaces<span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-home"></span></a></li>
+             <%   for (int i = 0; i < spaces.size(); ) {%>
+        <li>
+        <% def spaceType=spaces.get(i).getType().replaceAll("\\s","");
+         def realName=spaces.get(i).getType();
+           def id="#"+spaceType;;
+        %>
+          <a href="#" data-toggle="collapse" data-target="$id" data-parent="#sidenav01" class="collapsed">
+          <span class="glyphicon glyphicon-cloud"></span> $realName <span class="caret pull-right"></span>
+          <span style="font-size:16px;" class="pull-right hidden-xs showopacity glyphicon glyphicon-cog"></span>
+          </a>
+          <div class="collapse" id="$spaceType" style="height: 0px;">
+            <ul class="nav nav-list">
+            <%  for (Space myspace : spaces) {%>
+             <%if(myspace.getType().replaceAll("\\s","").equals(spaceType)){
+             def  spacePrettyName=myspace.getDisplayName();
+             def spaceUrl = org.exoplatform.social.webui.Utils.getSpaceHomeURL(myspace);
+             i++;
+             %>
+              <li><a href="<%= spaceUrl %>">$spacePrettyName</a></li>
+              <%}}%>
+           
+            </ul>
+          </div>
+        </li>
+        
+<%}%>
+
+
+      </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+  </div>
+</div>
+</div>
+
